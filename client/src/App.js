@@ -2,6 +2,8 @@ import "./App.css";
 import { useEffect, useState } from "react";
 import { accessToken, getCurrentUserProfile, logout } from "./spotify/spotify";
 
+import Login from "./pages/login";
+
 function App() {
   const [token, setToken] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -9,17 +11,15 @@ function App() {
   useEffect(() => {
     setToken(accessToken);
 
-    const fetchData = async () => {
+    async function fetchData() {
       // getUserProfile returns a promise so use try first
       try {
         const { data } = await getCurrentUserProfile();
         setProfile(data);
-
-        console.log(data);
       } catch (e) {
         console.error(e);
       }
-    };
+    }
 
     fetchData();
   }, []);
@@ -28,7 +28,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         {!token ? (
-          <a href="http://localhost:8888/login">Log in to Spotify</a>
+          <Login />
         ) : (
           <>
             <h1>Logged In!</h1>
