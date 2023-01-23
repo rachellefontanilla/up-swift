@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { accessToken, getCurrentUserProfile, logout } from "./spotify/spotify";
 
 import Login from "./pages/login";
+import Playlists from "./components/playlists";
 
 function App() {
   const [token, setToken] = useState(null);
@@ -12,7 +13,6 @@ function App() {
     setToken(accessToken);
 
     async function fetchData() {
-      // getUserProfile returns a promise so use try first
       try {
         const { data } = await getCurrentUserProfile();
         setProfile(data);
@@ -37,8 +37,7 @@ function App() {
             {profile && (
               <div>
                 <h1>Hi {profile.display_name}</h1>
-                <p>Followers: {profile.followers.total}</p>
-                <img src={profile.images[0].url} alt="Avatar"></img>
+                <Playlists />
               </div>
             )}
           </>
