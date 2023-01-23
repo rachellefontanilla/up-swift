@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { accessToken, getCurrentUserProfile, logout } from "./spotify/spotify";
 
 import Login from "./pages/login";
-import Playlists from "./components/playlists";
+import Playlists from "./components/Playlists";
 
 function App() {
   const [token, setToken] = useState(null);

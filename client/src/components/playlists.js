@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getCurrentUserPlaylists } from "../spotify/spotify";
+import Playlist from "./Playlist";
+
 
 const Playlists = () => {
   const [playlists, setPlaylists] = useState([]);
@@ -7,8 +9,8 @@ const Playlists = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userPlaylists = await getCurrentUserPlaylists();
-        setPlaylists(userPlaylists.data.items);
+        const { data } = await getCurrentUserPlaylists();
+        setPlaylists(data.items);
       } catch (e) {
         console.error(e);
       }
@@ -17,17 +19,14 @@ const Playlists = () => {
     fetchData();
   }, []);
 
+
   return (
     <div>
-      {playlists && (
-        <>
-          <h1>Your Playlists</h1>
-          <ul>
-          {playlists.map((playlist) => (
-            <li key={playlist.id}>{playlist.name}</li>
-            ))}
-          </ul>
-        </>
+      {playlists ? (
+        playlists.map(playlist =>
+          <Playlist playlist={playlist}/>
+      )) : (
+        <h2>You have no playlists that can be updated!</h2>
       )}
     </div>
   );
