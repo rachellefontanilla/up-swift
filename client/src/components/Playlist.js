@@ -7,10 +7,11 @@ const Playlist = ({playlist}) => {
     function handleClick () {
         const fetchData = async () => {
             try {
-                console.log(playlist.id)
-                // playlist.id becomes undefined
                 const { data } = await getPlaylistSongs(playlist.id);
-                setSongs(data.items);
+                if (data.items) {
+                    const filteredSongs = data.items.filter(item => item.track && item.track.name);
+                    setSongs(filteredSongs);
+                }
             } catch (e) {
                 console.error(e);
             }
@@ -25,7 +26,7 @@ const Playlist = ({playlist}) => {
             <p>{playlist.name}</p>
             <button onClick={handleClick}>Get playlist songs</button>
             { songs && songs.map(song => 
-            <li key={song.track.id}>{song.track.name}</li>
+                <li key={song.track.id}>{song.track.name}</li>
             ) }
         </div>
     )
