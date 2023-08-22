@@ -21,10 +21,10 @@ const Playlists = () => {
 
 
   return (
-    <div>
+    <div className="playlists">
       {playlists ? (
         playlists.map(playlist =>
-          <Playlist playlist={playlist}/>
+          <Playlist key={playlist.id} playlist={playlist}/>
       )) : (
         <h2>You have no playlists that can be updated!</h2>
       )}
