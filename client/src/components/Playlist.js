@@ -1,41 +1,51 @@
 import { useState } from "react";
-import { getPlaylistSongs } from "../spotify/spotify";
+import { getPlaylistSongs, removePlaylistSongs, addPlaylistSongs } from "../spotify/spotify";
+import { uriMapping } from "../resources/uriMapping";
 
 const Playlist = ({playlist}) => {
     const [songs, setSongs] = useState([]);
+    const [stolenUris, setStolenUris] = useState([]);
     const [stolenSongs, setStolenSongs] = useState([]);
 
-    function handleClick () {
-        const fetchData = async () => {
-            try {
-                const { data } = await getPlaylistSongs(playlist.id);
-                if (data.items) {
-                    const filteredSongs = data.items.filter(item => item.track && item.track.name);
-                    setSongs(filteredSongs);
-                }
-            } catch (e) {
-                console.error(e);
-            }
+    async function fetchData() {
+        try {
+          const { data } = await getPlaylistSongs(playlist.id);
+          if (data.items) {
+            const filteredSongs = data.items.filter(
+              (item) => item.track && item.track.name
+            );
+            console.log(filteredSongs);
+            setSongs(filteredSongs);
+          }
+        } catch (e) {
+          console.error(e);
         }
-      
+      }
+
+    function handleGetSongs () {   
         fetchData();
     }
 
-    function getStolenSongs () {
-        const fetchData = async () => {
-            try {
-                const { data } = await getPlaylistSongs(playlist.id);
-                if (data.items) {
-                    const filteredSongs = data.items.filter(item => item.track && item.track.name);
-                    const stolenSongs = filteredSongs.filter(song => isStolenAlbum(song.track.album.name) && isStolenSong(song.track.name));
-                    setStolenSongs(stolenSongs);
+    function handleGetStolenSongs () {
+        if (songs.length > 0) {
+            const stolenSongs = songs.filter(
+                (song) => {
+                    // console.log("Album name:", song.track.album.name);
+                    // console.log("Is stolen album?", isStolenAlbum(song.track.album.name));
+                    // console.log("Is stolen song?", isStolenSong(song.track.name));
+                    return isStolenAlbum(song.track.album.name) && isStolenSong(song.track.name)
                 }
-            } catch (e) {
-                console.error(e);
-            }
+            );
+            setStolenSongs(stolenSongs);
+            // transform stolenSongs into an array of objects with "uri" property for spotify endpoint
+            const stolenUris = stolenSongs.map((song) => ({
+                uri: song.track.uri,
+            }));
+            setStolenUris(stolenUris);
+        } else {
+            // If songs state is empty, fetch the songs
+            fetchData();
         }
-      
-        fetchData();
     }
 
     // 1: check if from stolen album
@@ -55,19 +65,38 @@ const Playlist = ({playlist}) => {
         return !songName.endsWith("(From The Vault");
     }
 
+    function handleRemoveStolenSongs(){
+
+        if (stolenUris.length > 0){
+            // use stolenUris to create array of newUris from map
+            const newUris = stolenUris.map((stolenUri) => {
+                const newUri = uriMapping[stolenUri.uri];
+                return { uri: newUri };
+            });
+
+            // use DELETE playlist tracks endpoint with stolenUris
+            removePlaylistSongs(playlist.id, stolenUris);
+
+            // use POST playlist tracks endpoint with newUris
+            addPlaylistSongs(playlist.id, newUris);
+        }
+    }
+
     return (
         <div>
             <img src={playlist.images[0].url} alt={playlist.name + " Playlist Cover"} width="100" height="100"></img>
             <p>{playlist.name}</p>
-            <button onClick={handleClick}>Get playlist songs</button>
+            <button onClick={handleGetSongs}>Get playlist songs</button>
             { songs && songs.map(song => 
                 <li key={song.track.id}>{song.track.name}</li>
             ) }
 
-            <button onClick={getStolenSongs}>Get stolen songs</button>
+            <button onClick={handleGetStolenSongs}>Get stolen songs</button>
             { stolenSongs && stolenSongs.map(stolenSong => 
                 <li key={stolenSong.track.id}>{stolenSong.track.name}</li>
             ) }
+
+            <button onClick={handleRemoveStolenSongs}>Remove stolen songs</button>
         </div>
     )
 }
