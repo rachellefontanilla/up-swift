@@ -41,7 +41,9 @@ app.get("/login", (req, res) => {
 
   const scope = [
     "user-read-private",
-    "playlist-read-private"
+    "playlist-read-private",
+    "playlist-modify-public",
+    "playlist-modify-private"
   ].join(" ");
   const queryParams = querystring.stringify({
     response_type: "code",
