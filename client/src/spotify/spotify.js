@@ -145,4 +145,23 @@ export const getCurrentUserProfile = () => axios.get("/me");
 
 export const getCurrentUserPlaylists = () => axios.get("/me/playlists");
 
-export const getPlaylistSongs = playlist_id => axios.get(`/playlists/${playlist_id}/tracks`)
+export const getPlaylistSongs = (playlist_id) => axios.get(`/playlists/${playlist_id}/tracks`)
+
+export const getAlbum = (album_id) => axios.get(`/albums/${album_id}`)
+
+export const getAlbumTracks = (album_id) => axios.get(`/albums/${album_id}/tracks`)
+
+export const removePlaylistSongs = (playlist_id, tracks) => {
+  const config = {
+    data: { tracks },
+  };
+  return axios.delete(`/playlists/${playlist_id}/tracks`, config);
+}
+
+export const addPlaylistSongs = (playlist_id, tracks) => {
+  const config = {
+    uris: tracks.map((track) => track.uri)
+  };
+
+  return axios.post(`/playlists/${playlist_id}/tracks`, config);
+}
